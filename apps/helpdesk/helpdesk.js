@@ -38,7 +38,7 @@ app.use(async ctx => {
       return
     case 'createNew':
       ctx.response.body = ticketManager.createTicket(name, description)
-      return  
+      return
     // TODO: обработка остальных методов
     default:
       ctx.response.status = 404
