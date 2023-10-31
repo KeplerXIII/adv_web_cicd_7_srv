@@ -4,12 +4,12 @@ class TicketManager {
     this.nextId = 1
   }
 
-  createTicket (name, description, status) {
+  createTicket (name, description) {
     const newTicket = {
       id: this.nextId++,
       name: name,
       description: description,
-      status: status,
+      status: false,
       created: this.formatDateToDDMMYYYY(Date.now())
     }
 
@@ -25,6 +25,16 @@ class TicketManager {
     const ticket = this.ticketByID(id)
     if (ticket) {
       ticket.status = !ticket.status
+      return true
+    } else {
+      return false
+    }
+  }
+
+  removeByID (id) {
+    const index = this.tickets.findIndex((ticket) => ticket.id === id)
+    if (index !== -1) {
+      this.tickets.splice(index, 1)
       return true
     } else {
       return false

@@ -18,7 +18,9 @@ app.use(koaBody({
 app.use(async ctx => {
   const { method } = ctx.request.query
   const { id } = ctx.request.query
+  const { name, description} = ctx.request.query
   ctx.response.set('Access-Control-Allow-Origin', '*')
+  ctx.response.set('Access-Control-Allow-Methods', 'GET, POST, DELETE')
   console.log(method)
 
   switch (method) {
@@ -31,6 +33,12 @@ app.use(async ctx => {
     case 'switchByID':
       ctx.response.body = ticketManager.switchTicketStatusByID(parseInt(id))
       return
+    case 'removeByID':
+      ctx.response.body = ticketManager.removeByID(parseInt(id))
+      return
+    case 'createNew':
+      ctx.response.body = ticketManager.createTicket(name, description)
+      return  
     // TODO: обработка остальных методов
     default:
       ctx.response.status = 404
