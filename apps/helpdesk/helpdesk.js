@@ -1,80 +1,107 @@
 const http = require('http')
 const Koa = require('koa')
 const koaBody = require('koa-body').default
+const TicketManager = require('./ticketManager')
 
 const app = new Koa()
 
-let subscriptions = []
+const ticketManager = new TicketManager()
+ticketManager.createTicket('Test', 'Long text', true)
+ticketManager.createTicket('Test1', 'Long text1', false)
+ticketManager.createTicket('Test3', 'Long text3', true)
 
 app.use(koaBody({
-  urlencoded: true
+  urlencoded: true,
+  multipart: true
 }))
 
-app.use((ctx, next) => {
-  if (ctx.request.method !== 'OPTIONS') {
-    next()
-    return
-  }
-
+app.use(async ctx => {
+  const { method } = ctx.request.query
+  const { id } = ctx.request.query
   ctx.response.set('Access-Control-Allow-Origin', '*')
-  ctx.response.set('Access-Control-Allow-Methods', 'DELETE, PUT, PATCH, GET, POST')
+  console.log(method)
 
-  ctx.response.status = 204
+  switch (method) {
+    case 'allTickets':
+      ctx.response.body = ticketManager.tickets
+      return
+    case 'ticketByID':
+      ctx.response.body = ticketManager.ticketByID(parseInt(id))
+      return
+    case 'switchByID':
+      ctx.response.body = ticketManager.switchTicketStatusByID(parseInt(id))
+      return
+    // TODO: обработка остальных методов
+    default:
+      ctx.response.status = 404
+  }
 })
 
-app.use((ctx, next) => {
-  if (ctx.request.method !== 'POST') {
-    next()
+// app.use((ctx, next) => {
+//   if (ctx.request.method !== 'OPTIONS') {
+//     next()
+//     return
+//   }
 
-    return
-  }
+//   ctx.response.set('Access-Control-Allow-Origin', '*')
+//   ctx.response.set('Access-Control-Allow-Methods', 'DELETE, PUT, PATCH, GET, POST')
 
-  console.log(ctx.request.body)
+//   ctx.response.status = 204
+// })
 
-  const { name, phone } = ctx.request.body
+// app.use((ctx, next) => {
+//   if (ctx.request.method !== 'POST') {
+//     next()
 
-  ctx.response.set('Access-Control-Allow-Origin', '*')
+//     return
+//   }
 
-  if (subscriptions.some(sub => sub.phone === phone)) {
-    ctx.response.status = 400
-    ctx.response.body = 'subscription exists'
+//   console.log(ctx.request.body)
 
-    return
-  }
+//   const { name, phone } = ctx.request.body
 
-  subscriptions.push({ name, phone })
+//   ctx.response.set('Access-Control-Allow-Origin', '*')
 
-  ctx.response.body = 'OK'
+//   if (subscriptions.some(sub => sub.phone === phone)) {
+//     ctx.response.status = 400
+//     ctx.response.body = 'subscription exists'
 
-  next()
-})
+//     return
+//   }
 
-app.use((ctx, next) => {
-  if (ctx.request.method !== 'DELETE') {
-    next()
+//   subscriptions.push({ name, phone })
 
-    return
-  }
+//   ctx.response.body = 'OK'
 
-  console.log(ctx.request.query)
+//   next()
+// })
 
-  const { phone } = ctx.request.query
+// app.use((ctx, next) => {
+//   if (ctx.request.method !== 'DELETE') {
+//     next()
 
-  ctx.response.set('Access-Control-Allow-Origin', '*')
+//     return
+//   }
 
-  if (subscriptions.every(sub => sub.phone !== phone)) {
-    ctx.response.status = 400
-    ctx.response.body = 'subscription doesn\'t exists'
+//   console.log(ctx.request.query)
 
-    return
-  }
+//   const { phone } = ctx.request.query
 
-  subscriptions = subscriptions.filter(sub => sub.phone !== phone)
+//   ctx.response.set('Access-Control-Allow-Origin', '*')
 
-  ctx.response.body = 'OK'
+//   if (subscriptions.every(sub => sub.phone !== phone)) {
+//     ctx.response.status = 400
+//     ctx.response.body = 'subscription doesn\'t exists'
 
-  next()
-})
+//     return
+//   }
+
+//   subscriptions = subscriptions.filter(sub => sub.phone !== phone)
+
+//   ctx.response.body = 'OK'
+
+//   next()
+// })
 
 const server = http.createServer(app.callback())
 
