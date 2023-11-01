@@ -20,6 +20,7 @@ app.use(async ctx => {
   const idInt = parseInt(id)
   ctx.response.set('Access-Control-Allow-Origin', '*')
   ctx.response.set('Access-Control-Allow-Methods', 'GET, POST, DELETE')
+  console.log(method, id)
 
   switch (method) {
     case 'allTickets':
@@ -38,7 +39,6 @@ app.use(async ctx => {
       ctx.response.body = ticketManager.createTicket(name, description)
       return
     case 'editByID':
-      console.log(id, name, description)
       ctx.response.body = ticketManager.editByID(idInt, name, description)
       return
     default:
@@ -48,7 +48,7 @@ app.use(async ctx => {
 
 const server = http.createServer(app.callback())
 
-const port = 6060
+const port = 8800
 
 server.listen(port, (err) => {
   if (err) {
