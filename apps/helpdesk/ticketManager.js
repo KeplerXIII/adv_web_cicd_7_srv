@@ -58,6 +58,17 @@ class TicketManager {
     const year = date.getFullYear()
     return `${day}.${month}.${year}`
   }
+
+  editByID (id, newName, newDescription) {
+    const ticket = this.ticketByID(id)
+    if (ticket) {
+      ticket.name = newName
+      ticket.description = newDescription
+      return true
+    } else {
+      return false
+    }
+  }
 }
 
 module.exports = TicketManager

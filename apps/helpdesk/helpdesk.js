@@ -6,9 +6,9 @@ const TicketManager = require('./ticketManager')
 const app = new Koa()
 
 const ticketManager = new TicketManager()
-ticketManager.createTicket('Test', 'Long text', true)
-ticketManager.createTicket('Test1', 'Long text1', false)
-ticketManager.createTicket('Test3', 'Long text3', true)
+ticketManager.createTicket('Тестовая задача 1', 'Большое описание поставленной задачи.', true)
+ticketManager.createTicket('Тестовая задача 2', 'Большое описание поставленной задачи.', false)
+ticketManager.createTicket('Тестовая задача 3', 'Большое описание поставленной задачи.', true)
 
 app.use(koaBody({
   urlencoded: true,
@@ -16,9 +16,8 @@ app.use(koaBody({
 }))
 
 app.use(async ctx => {
-  const { method } = ctx.request.query
-  const { id } = ctx.request.query
-  const { name, description } = ctx.request.query
+  const { method, id, name, description } = ctx.request.query
+  const idInt = parseInt(id)
   ctx.response.set('Access-Control-Allow-Origin', '*')
   ctx.response.set('Access-Control-Allow-Methods', 'GET, POST, DELETE')
   console.log(method)
@@ -28,18 +27,21 @@ app.use(async ctx => {
       ctx.response.body = ticketManager.tickets
       return
     case 'ticketByID':
-      ctx.response.body = ticketManager.ticketByID(parseInt(id))
+      ctx.response.body = ticketManager.ticketByID(idInt)
       return
     case 'switchByID':
-      ctx.response.body = ticketManager.switchTicketStatusByID(parseInt(id))
+      ctx.response.body = ticketManager.switchTicketStatusByID(idInt)
       return
     case 'removeByID':
-      ctx.response.body = ticketManager.removeByID(parseInt(id))
+      ctx.response.body = ticketManager.removeByID(idInt)
       return
     case 'createNew':
       ctx.response.body = ticketManager.createTicket(name, description)
       return
-    // TODO: обработка остальных методов
+    case 'editByID':
+      console.log(id, name, description)
+      ctx.response.body = ticketManager.editByID(idInt, name, description)
+      return
     default:
       ctx.response.status = 404
   }
