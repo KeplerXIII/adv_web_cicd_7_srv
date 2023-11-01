@@ -20,7 +20,6 @@ app.use(async ctx => {
   const idInt = parseInt(id)
   ctx.response.set('Access-Control-Allow-Origin', '*')
   ctx.response.set('Access-Control-Allow-Methods', 'GET, POST, DELETE')
-  console.log(method)
 
   switch (method) {
     case 'allTickets':
